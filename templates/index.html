@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"/>
+        <title>mybrary</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"/>
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+              crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+                integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+                crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+        <style>
+            .center {
+                text-align: center;
+            }
+
+            .page_title {
+                font-family: 'Black Han Sans', sans-serif;
+                color: white;
+                font-size: 40px;
+            }
+
+            .theme {
+                background-image: url(https://cdn.pixabay.com/photo/2017/08/06/22/01/books-2596809_960_720.jpg);
+            }
+
+            .sub_title {
+                font-family: 'Russo One', sans-serif;
+                color: black;
+                font-size: 20px;
+            }
+
+            .btn-large {
+                flex-basis: 50%
+            }
+
+            .search-box {
+                margin: auto;
+            }
+
+            #exampleInputEmail1 {
+                flex-basis: 50%;
+                display: block;
+                margin: 0 auto;
+                position: center;
+            }
+
+            #btn-post-box {
+                margin: 30px auto 30px auto;
+            }
+
+            #book-image {
+                margin-right: 50px;
+            }
+
+            .tabs {
+                display: flex;
+                justify-content: space-between;
+                align-item: center;
+            }
+
+            #books-box {
+                display: flex;
+                justify-content: center;
+                align-item: center;
+                flex-direction: column;
+            }
+            #chart {
+                display : flex;
+                flex-basis: 50%;
+            }
+
+        </style>
+        <script>
+            function showBooks() {
+                $('#books-box').empty();
+                $.ajax({
+                    type: 'POST',
+                    url: '/search',
+                    data: {'keyword': $('#exampleInputEmail1').val()},
+                    success: function (response) {
+                        if (response['result'] == 'success') {
+                            let books = response['books'];
+                            for (let i = 0; i < books.length; i++) {
+                                let title = books[i]['title'];
+                                let author = books[i]['author'];
+                                let img = books[i]['image'];
+                                let desc = books[i]['description'];
+                                let tempHtml = `<div class="card">
+                                <div class="card-content">
+                                  <div class="media">
+                                    <div class="media-left">
+                                      <figure class="image is-100x100">
+                                        <img id = 'book-image'
+                                          src="${img}"
+
+                                        />
+                                      </figure>
+                                    </div>
+                                    <div class="media-content">
+                                      <a href="#" target="_blank" class="star-name title is-4">${title}</a>
+                                      <br>
+                                      <br>
+                                      <p class="subtitle is-7">${author}</p>
+                                      <p class="subtitle is-5">${desc}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <footer class="card-footer">
+                                  <a href="#"  class="card-footer-item has-text-info">
+                                    위로!
+                                    <span class="icon">
+                                      <i class="fas fa-thumbs-up"></i>
+                                    </span>
+                                  </a>
+                                  <a href="#"  class="card-footer-item has-text-danger">
+                                    삭제
+                                    <span class="icon">
+                                      <i class="fas fa-ban"></i>
+                                    </span>
+                                  </a>
+                                </footer>
+                              </div>`
+
+                                $('#books-box').append(tempHtml);
+                            }
+                            let chart_index = response['chart_index'];
+                            let chart_values = response['chart_values'];
+                            var ctx = document.getElementById("myChart");
+                            var myChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: chart_index,
+                                    datasets: [{
+                                        label: '# of Votes',
+                                        data: chart_values,
+                                        backgroundColor: [
+                                            'rgba(255, 99, 132, 0.2)',
+                                            'rgba(54, 162, 235, 0.2)',
+                                            'rgba(255, 206, 86, 0.2)',
+                                            'rgba(75, 192, 192, 0.2)',
+                                            'rgba(153, 102, 255, 0.2)',
+                                            'rgba(255, 159, 64, 0.2)'
+                                        ],
+                                        borderColor: [
+                                            'rgba(255,99,132,1)',
+                                            'rgba(54, 162, 235, 1)',
+                                            'rgba(255, 206, 86, 1)',
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(153, 102, 255, 1)',
+                                            'rgba(255, 159, 64, 1)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: false,
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }]
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+
+        </script>
+    </head>
+    <body>
+        <section class="hero-dark">
+            <div class='theme'>
+                <div class="hero-body">
+                    <div class="container center">
+                        <h1 class="page_title">
+                            MY&nbsp;&nbsp;&nbsp;&nbsp;<br>Brary
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <br>
+            <div>
+                <h2 class="sub_title center">당신이 만드는 문장의 나라</h2>
+            </div>
+            <br>
+        </section>
+        <div class="center tabs" role="group" aria-label="First group">
+            <button type="button" class="btn btn-dark btn-large">나의 작가</button>
+            <button type="button" class="btn btn-dark btn-large">리뷰 쓰기</button>
+            <button type="button" class="btn btn-dark btn-large">도서 검색</button>
+            <button type="button" class="btn btn-dark btn-large">둘러 보기</button>
+        </div>
+        <form>
+            <div class="search-box center">
+                <label for="exampleInputEmail1">&nbsp;</label>
+                <input class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                       placeholder="키워드 입력">
+                <small id="emailHelp" class="form-text text-muted">도서명, 작가, 출판사 등을 입력하세요</small>
+                <button onclick="showBooks()"
+                        id="btn-post-box" type="button" class="btn btn-light">키워드 검색
+                </button>
+            </div>
+        </form>
+        <div id = 'chart'>
+            <canvas id="myChart" width = '500' hegiht = '200'></canvas>
+        </div>
+        <div id="books-box" class="book-columns"></div>
+
+    </body>
+</html>
